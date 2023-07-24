@@ -14,9 +14,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (isset($_FILES)) {
 
-        $name = $_FILES['photo']['name'];
+        $photoname = $_FILES['photo']['name'];
         $dir = $_FILES['photo']['tmp_name'];
-        $route = "./uploads/$name";
+        $route = "./uploads/$photoname";
         move_uploaded_file($dir, $route);
     }
 
