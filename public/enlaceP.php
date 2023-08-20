@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $route;
 
-    if (isset($_FILES)) {
+    if (isset($_FILES['photo']['name'])) {
 
         $photoname = $_FILES['photo']['name'];
         $dir = $_FILES['photo']['tmp_name'];
@@ -20,13 +20,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         move_uploaded_file($dir, $route);
     }
 
-
     require("connection.php");
-    $hash =  password_hash($pass, PASSWORD_DEFAULT);
+
+    if ($_POST["password"] != null) {
+        $hash =  password_hash($pass, PASSWORD_DEFAULT);
+        $mysqli->query("UPDATE users SET `password`='$hash'");
+    }
+
+    if ($_FILES['photo']['name'] != null) {
+
+        $hash =  password_hash($pass, PASSWORD_DEFAULT);
+        $mysqli->query("UPDATE users SET `photo`='$route' ");
+    }
+
+
+
     //preparo el query
 
 
-    $query = "UPDATE users SET `name`='$name',`phone`='$phone',`bio`='$bio', `photo`='$route' WHERE `email` = '$email'";
+    $query = "UPDATE users SET `name`='$name',`phone`='$phone',`bio`='$bio' WHERE `email` = '$email'";
 
     // ejecutar query
     $mysqli->query($query);
@@ -34,11 +46,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     session_start();
 
-    $_SESSION['usuario']['name'] =  $name;
-    $_SESSION['usuario']['phone'] =  $phone;
-    $_SESSION['usuario']['bio'] =  $bio;
-    $_SESSION['usuario']['photo'] =  $route;
-
-
+    // adquirir datos del usuario
+    $mysqli->query($query);
+    $querySelect = "SELECT * FROM users WHERE email= '$email'";
+    $resultado = $mysqli->query($querySelect);
+    $datos = $resultado->fetch_assoc();
+    $_SESSION["usuario"] = $datos;
     header("Location: perfil.php");
 };
